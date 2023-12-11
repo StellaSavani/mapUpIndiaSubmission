@@ -3,7 +3,8 @@ import networkx as nx
 from datetime import time, datetime
 
 
-def calculate_distance_matrix(df)->pd.DataFrame():
+
+def calculate_distance_matrix(df):
     """
     Calculate a distance matrix based on the dataframe, df.
 
@@ -13,10 +14,6 @@ def calculate_distance_matrix(df)->pd.DataFrame():
     Returns:
         pandas.DataFrame: Distance matrix
     """
-    # Write your logic here
-    # Read the CSV file into a DataFrame
-    df = pd.read_csv(csv_file)
-
     # Creating a directed graph to represent toll locations and distances
     G = nx.DiGraph()
 
@@ -34,22 +31,21 @@ def calculate_distance_matrix(df)->pd.DataFrame():
     return distance_df
 
 # Example usage:
-csv_file_path = 'E:\Map Up India\Data Set and Intro\datasets\dataset-3.csv'
-resulting_distance_matrix = calculate_distance_matrix(csv_file_path)
+csv_file_path = './datasets/dataset-3.csv'
+df = pd.read_csv(csv_file_path)
+resulting_distance_matrix = calculate_distance_matrix(df)
 print(resulting_distance_matrix)
 
-
-def unroll_distance_matrix(df)->pd.DataFrame():
+def unroll_distance_matrix(distance_df):
     """
     Unroll a distance matrix to a DataFrame in the style of the initial dataset.
 
     Args:
-        df (pandas.DataFrame)
+        distance_df (pandas.DataFrame): Distance matrix
 
     Returns:
         pandas.DataFrame: Unrolled DataFrame containing columns 'id_start', 'id_end', and 'distance'.
     """
-    # Write your logic here
     # Initializing lists to store unrolled data
     id_start_list, id_end_list, distance_list = [], [], []
 
@@ -72,8 +68,7 @@ def unroll_distance_matrix(df)->pd.DataFrame():
 unrolled_distance_matrix = unroll_distance_matrix(resulting_distance_matrix)
 print(unrolled_distance_matrix)
 
-
-def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
+def find_ids_within_ten_percentage_threshold(df, reference_id):
     """
     Find all IDs whose average distance lies within 10% of the average distance of the reference ID.
 
@@ -87,7 +82,7 @@ def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
     """
     # Write your logic here
     # Filter the DataFrame based on the reference value
-    reference_df = df[unrolled_distance_matrix['id_start'] == reference_value]
+    reference_df = df[df['id_start'] == reference_id]
 
     # Calculating the average distance for the reference value
     average_distance = reference_df['distance'].mean()
@@ -96,7 +91,7 @@ def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
     threshold = 0.1 * average_distance
 
     # Find the ids within the threshold range
-    within_threshold_ids = df[(df['id_start'] != reference_value) & 
+    within_threshold_ids = df[(df['id_start'] != reference_id) & 
                               (df['distance'] >= (average_distance - threshold)) &
                               (df['distance'] <= (average_distance + threshold))]['id_start']
 
@@ -107,15 +102,15 @@ def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
 
 # Example usage:
 # Assuming unrolled_df is the DataFrame obtained from the previous function
-resulting_matrix = calculate_distance_matrix('E:\Map Up India\Data Set and Intro\datasets\dataset-3.csv')
+resulting_matrix = calculate_distance_matrix('./datasets/dataset-3.csv')
 unrolled_df = unroll_distance_matrix(resulting_matrix)
 
-reference_value = unrolled_distance_matrix['id_start'] # Replace with the desired reference value
+reference_value = unrolled_df['id_start'].iloc[0]  # Replace with the desired reference value
 within_threshold_ids = find_ids_within_ten_percentage_threshold(unrolled_df, reference_value)
 print(within_threshold_ids)
 
 
-def calculate_toll_rate(df)->pd.DataFrame():
+def calculate_toll_rate(df):
     """
     Calculate toll rates for each vehicle type based on the unrolled DataFrame.
 
@@ -125,9 +120,8 @@ def calculate_toll_rate(df)->pd.DataFrame():
     Returns:
         pandas.DataFrame
     """
-    # Wrie your logic here
     # Make a copy of the input DataFrame to avoid modifying the original
-    df = input_df.copy()
+    df = df.copy()
 
     # Define rate coefficients for each vehicle type
     rate_coefficients = {'moto': 0.8, 'car': 1.2, 'rv': 1.5, 'bus': 2.2, 'truck': 3.6}
@@ -142,8 +136,7 @@ def calculate_toll_rate(df)->pd.DataFrame():
 # Example usage:
 # Assuming unrolled_df is the DataFrame obtained from the previous function
 resulting_df_with_rates = calculate_toll_rate(unrolled_df)
-print(resulting_df_with_rates)
-
+print(resulting_df_with_rates)  
 
 def calculate_time_based_toll_rates(df)->pd.DataFrame():
     """
@@ -210,6 +203,5 @@ def calculate_time_based_toll_rates(df)->pd.DataFrame():
 
 # Example usage:
 # Assuming resulting_df_with_rates is the DataFrame obtained from the previous function
-resulting_df_with_time_rates = calculate_time_based_toll_rates(resulting_df_with_rates)
-print(resulting_df_with_time_rates)
-
+resulting_df_with_rates = calculate_time_based_toll_rates(resulting_df_with_rates)
+print(resulting_df_with_rates)
